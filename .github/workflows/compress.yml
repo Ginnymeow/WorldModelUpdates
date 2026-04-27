@@ -1,0 +1,24 @@
+name: Compress and Deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compress with Gzip & Brotli
+        run: |
+          find . -type f \( -name "*.html" -o "*.css" -o "*.js" -o "*.svg" \) | while read file; do
+            gzip -9 -k "$file"
+            brotli -Z -k "$file"
+          done
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
